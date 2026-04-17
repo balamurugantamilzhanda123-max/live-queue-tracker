@@ -1,0 +1,1 @@
+A real-time queue tracking system that allows users to monitor waiting lines, view live queue positions, and receive accurate wait-time estimates, helping businesses improve service efficiency and reduce customer wait times.
