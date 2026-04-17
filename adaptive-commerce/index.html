@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Adaptive Smart Commerce</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Header -->
+        <header id="app-header">
+            <div class="header-content">
+                <h1 id="header-title">Smart Commerce</h1>
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Dynamic views will be injected here -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav">
+            <button class="nav-btn active" data-view="home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-btn" data-view="orders">
+                <i class="fas fa-receipt"></i>
+                <span>Orders</span>
+            </button>
+            <button class="nav-btn" data-view="tracking">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Track</span>
+            </button>
+        </nav>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container"></div>
+    </div>
+
+    <!-- Templates -->
+    <template id="tpl-home">
+        <div class="view-home">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search for food, groceries...">
+            </div>
+            
+            <div class="section-header">
+                <h2>Nearby Shops</h2>
+                <span class="filter-btn"><i class="fas fa-sliders-h"></i> Filters</span>
+            </div>
+            
+            <div id="shops-list" class="shops-list">
+                <!-- Shops injected here -->
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-shop-card">
+        <div class="shop-card" data-shop-id="">
+            <div class="shop-image"></div>
+            <div class="shop-info">
+                <div class="shop-header">
+                    <h3 class="shop-name"></h3>
+                    <div class="shop-rating"><i class="fas fa-star"></i> <span>4.5</span></div>
+                </div>
+                <div class="shop-details">
+                    <span class="shop-distance"><i class="fas fa-map-pin"></i> <span></span></span>
+                </div>
+                <div class="load-indicator-container">
+                    <div class="load-dot"></div>
+                    <span class="load-text"></span>
+                    <span class="eta-text"></span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-shop-detail">
+        <div class="view-shop-detail">
+            <div class="back-btn-container">
+                <button class="btn-back"><i class="fas fa-arrow-left"></i> Back</button>
+            </div>
+            <div class="shop-hero">
+                <h2 class="shop-detail-name"></h2>
+                <div class="live-queue-banner">
+                    <div class="pulse-ring"></div>
+                    <span>Live Queue: <strong class="queue-count">0</strong> orders | Wait: <strong class="queue-wait">0</strong> mins</span>
+                </div>
+            </div>
+            <div class="menu-list" id="menu-list">
+                <!-- Products injected here -->
+            </div>
+            <div class="cart-summary" style="display: none;">
+                <div class="cart-info">
+                    <span class="cart-items">0 items</span>
+                    <span class="cart-total">$0.00</span>
+                </div>
+                <button class="btn-checkout">View Cart & Checkout <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-product-card">
+        <div class="product-card">
+            <img class="product-image" src="" alt="Product">
+            <div class="product-info-wrapper">
+                <div class="product-info">
+                    <h4 class="product-name"></h4>
+                    <p class="product-price"></p>
+                </div>
+                <div class="product-actions">
+                    <button class="btn-add">Add</button>
+                    <div class="quantity-controls" style="display: none;">
+                        <button class="btn-icon btn-minus"><i class="fas fa-minus"></i></button>
+                        <span class="qty-display">0</span>
+                        <button class="btn-icon btn-plus"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-checkout">
+        <div class="view-checkout">
+            <div class="back-btn-container">
+                <button class="btn-back"><i class="fas fa-arrow-left"></i> Back</button>
+            </div>
+            <h2>Checkout</h2>
+            
+            <div class="checkout-card smart-suggestion" style="display: none;">
+                <div class="suggestion-header">
+                    <i class="fas fa-bolt text-yellow"></i> 
+                    <h3>Smart Routing Available</h3>
+                </div>
+                <p class="suggestion-text">Current shop is busy. Switch to <strong class="alt-shop-name"></strong> to save <strong class="time-saved"></strong> minutes!</p>
+                <div class="suggestion-actions">
+                    <button class="btn-outline btn-ignore">Keep current</button>
+                    <button class="btn-primary btn-accept">Switch & Save Time</button>
+                </div>
+            </div>
+
+            <div class="checkout-card">
+                <h3>Order Summary</h3>
+                <div id="checkout-items"></div>
+                <div class="checkout-total">
+                    <span>Total</span>
+                    <span id="checkout-total-price"></span>
+                </div>
+            </div>
+
+            <div class="checkout-card eta-card">
+                <h3>Estimated Time</h3>
+                <div class="eta-breakdown">
+                    <div class="eta-row"><span>Queue Time</span><span id="eta-queue"></span></div>
+                    <div class="eta-row"><span>Prep Time</span><span id="eta-prep"></span></div>
+                    <div class="eta-row"><span>Delivery Time</span><span id="eta-delivery"></span></div>
+                    <hr>
+                    <div class="eta-row total"><span>Total ETA</span><span id="eta-total"></span></div>
+                </div>
+            </div>
+
+            <button class="btn-primary btn-block btn-place-order">Place Order</button>
+        </div>
+    </template>
+
+    <template id="tpl-tracking">
+        <div class="view-tracking">
+            <h2>Order Tracking</h2>
+            <div id="active-orders-container">
+                <!-- Orders injected here -->
+            </div>
+        </div>
+    </template>
+
+    <template id="tpl-tracking-card">
+        <div class="tracking-card">
+            <div class="tracking-header">
+                <h3>Order <span class="order-id"></span></h3>
+                <span class="order-status-badge"></span>
+            </div>
+            
+            <div class="map-placeholder">
+                <i class="fas fa-map-marked-alt"></i>
+                <div class="driver-marker"><i class="fas fa-motorcycle"></i></div>
+            </div>
+
+            <div class="tracking-stepper">
+                <div class="step step-pending">
+                    <div class="step-icon"><i class="fas fa-clock"></i></div>
+                    <div class="step-text">Pending</div>
+                </div>
+                <div class="step step-cooking">
+                    <div class="step-icon"><i class="fas fa-fire"></i></div>
+                    <div class="step-text">Cooking</div>
+                </div>
+                <div class="step step-ready">
+                    <div class="step-icon"><i class="fas fa-box"></i></div>
+                    <div class="step-text">Ready</div>
+                </div>
+                <div class="step step-delivering">
+                    <div class="step-icon"><i class="fas fa-motorcycle"></i></div>
+                    <div class="step-text">Delivering</div>
+                </div>
+            </div>
+            
+            <div class="driver-info" style="display: none;">
+                <div class="driver-avatar"><i class="fas fa-user"></i></div>
+                <div class="driver-details">
+                    <h4 class="driver-name"></h4>
+                    <p class="driver-status"></p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>
